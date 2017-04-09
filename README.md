@@ -1,21 +1,22 @@
-# README #
+DynamicDataPrivacy.jl
+=====================
 
-Differentially private analysis of dynamic data.
+*Differentially private dynamic data analysis in Julia*
 
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+---
 
 ## Set-up ##
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+```julia
+Pkg.clone("https://jleny@bitbucket.org/cipherlab/dynamicdataprivacy.jl.git")
+using DynamicDataPrivacy
+```
+
+## Run Tests ##
+
+```julia
+Pkg.test("DynamicDataPrivacy")
+```
 
 ## Contributors ##
 
