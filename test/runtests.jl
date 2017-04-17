@@ -1,4 +1,5 @@
 #using DynamicDataPrivacy
+using DynamicDataPrivacy
 using Base.Test
 
 @testset begin
