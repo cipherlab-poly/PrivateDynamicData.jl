@@ -8,7 +8,7 @@ DynamicDataPrivacy.jl
 ## Set-up ##
 
 ```julia
-Pkg.clone("https://jleny@bitbucket.org/cipherlab/dynamicdataprivacy.jl.git")
+Pkg.clone("https://github.com/cipherlab-poly/DynamicDataPrivacy.jl.git")
 using DynamicDataPrivacy
 ```
 
