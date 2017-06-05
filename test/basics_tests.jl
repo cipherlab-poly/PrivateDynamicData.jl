@@ -7,8 +7,11 @@
   end
 
   @testset "Basic mechanisms" begin
-    ϵ = log(2); δ = 0.01
+    ϵ = log(2); δ = 0.04
 
-    @test 1 == 1
+    srand(12345)  # reseed the RNG
+    D = rand(100)
+    @test gaussianMech(D, mean, 2.0/100, ϵ, δ)[1] == 0.4764940748202759
+    @test laplaceMech(D, mean, 2.0/100, ϵ)[1] == 0.5366973705020675
   end
 end

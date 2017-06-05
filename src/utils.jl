@@ -33,12 +33,11 @@ function mean_dp(x::Vector, ϵ::Real, δ::Real=0.0)
 	return mean(x)+rand(d,1)
 end
 
-"""    laplaceMech(x,f,l1Sens::Real,ϵ::Real)
+"""    laplaceMech(x,f,l1sens::Real,ϵ::Real)
 Computes a randomized version to f(x) according to the
-Laplace mechanism, for ϵ-differential privacy. l1Sens is
-the l1-sensitivity of f, which must be computed by the user.
-f must take values in R^k, from some k, i.e., return an array
-of k real values.
+Laplace mechanism, for ϵ-differential privacy. l1sens is
+the l1-sensitivity of f, which must be computed and provided by the user.
+f must take values in R^k, for some k, i.e., return an array of k real values.
 """
 function laplaceMech(x, f, l1sens::Real, ϵ::Real)
 	t = f(x)
@@ -46,15 +45,15 @@ function laplaceMech(x, f, l1sens::Real, ϵ::Real)
 	return (t + rand(d,length(t)))
 end
 
-"""    gaussianMech(x,f,l2Sens::Real,ϵ::Real,δ::Real)
+"""    gaussianMech(x,f,l2sens::Real,ϵ::Real,δ::Real)
 Computes a randomized version to f(x) according to the
-Gaussian mechanism, for (ϵ,δ)-differential privacy. l2Sens is
+Gaussian mechanism, for (ϵ,δ)-differential privacy. l2sens is
 the l2-sensitivity of f, which must be computed by the user.
 f must take values in R^k, from some k, i.e., return an array
 of k real values.
 """
-function gaussianMech(x, f, l2Sens::Real, ϵ::Real, δ::Real)
+function gaussianMech(x, f, l2sens::Real, ϵ::Real, δ::Real)
 	t = f(x)
 	d = Normal(0, gaussianMechConstant(ϵ,δ)*l2sens)
-	return (t + rand(d,length(t)))
+	return (t + rand(d, length(t)))
 end
