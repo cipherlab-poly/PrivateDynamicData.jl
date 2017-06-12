@@ -1,4 +1,4 @@
-DynamicDataPrivacy.jl
+PrivateDynamicData.jl
 =====================
 
 *Differentially private dynamic data analysis in Julia*
@@ -8,14 +8,14 @@ DynamicDataPrivacy.jl
 ## Set-up ##
 
 ```julia
-Pkg.clone("https://github.com/cipherlab-poly/DynamicDataPrivacy.jl.git")
-using DynamicDataPrivacy
+Pkg.clone("https://github.com/cipherlab-poly/PrivateDynamicData.jl.git")
+using PrivateDynamicData
 ```
 
 ## Run Tests ##
 
 ```julia
-Pkg.test("DynamicDataPrivacy")
+Pkg.test("PrivateDynamicData")
 ```
 
 ## Contributors ##

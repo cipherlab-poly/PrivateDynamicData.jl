@@ -1,6 +1,6 @@
 __precompile__()
 
-module DynamicDataPrivacy
+module PrivateDynamicData
 
 export gaussianMechConstant, gaussianMechConstant2,
        laplaceMech, gaussianMech
