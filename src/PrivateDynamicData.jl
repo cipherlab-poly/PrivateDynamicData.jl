@@ -1,11 +1,12 @@
-__precompile__()
+#__precompile__()
 
 module PrivateDynamicData
 
 export gaussianMechConstant, gaussianMechConstant2,
-       laplaceMech, gaussianMech
+       laplaceMech, gaussianMech,
+       staticInputBlock_DPKF_ss, dfactor, evaluateKFperf
 
 include("utils.jl")
-#include("kalmanStaticDdesign.jl")
+include("dpkf.jl")  # Differentially private Kalman filtering
 
 end  # module

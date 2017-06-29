@@ -1,5 +1,5 @@
-@testset "Differential Privacy Tests" begin
-  @testset "Basics" begin
+@testset "Basic Utilities Tests" begin
+  @testset "Utils" begin
     ϵ = log(3); δ = 0.05
 
     @test gaussianMechConstant(ϵ, δ) == 1.756339873114760
