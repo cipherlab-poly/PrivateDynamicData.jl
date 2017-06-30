@@ -3,14 +3,14 @@ using Mosek
 using ControlSystems
 
 
-"""    staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, k_priv, ρ,
-                                m=size(As,1), p=size(Cs,1), r=size(Ls,1))
+"""    (D, P_val, X_val, Ω_val, M) = staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, k_priv, ρ,
+                                                              m=size(As,1), p=size(Cs,1), r=size(Ls,1))
 Compute an input matrix D for the two-block differentially private
 steady-state Kalman filter mechanism. D takes linear combinations of
 individual signals before privacy-preserving Gaussian noise injection.
 
-Inputs: vectors of matrices, one per individual
-------
+Inputs: one matrix per individual
+
 - Ls: size (r,m,nusers)  (if want estimator of sum_i L_i x_i)
 - As: size (m,m,nusers)
 - Cs: size (p,m,nusers)
@@ -61,7 +61,7 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
 	for i=1:nusers
 		e = zeros(p,Np); e[:,(i-1)*p+1:i*p]=eye(p)
 		@SDconstraint(modl, hvcat((2,2),
-	  	eye(p)/(k_priv^2*ρ[i]^2)+Vinvs[:,:,i], e, e', V-V*P*V) >= zeros(Np+1,Np+1))
+	  	eye(p)/(k_priv^2*ρ[i]^2)+Vinvs[:,:,i], e, e', V-V*P*V) >= zeros(Np+p,Np+p))
 	end
 
   status = solve(modl)
@@ -116,7 +116,7 @@ function dfactor(M; svaltol=1e-4)
 	for j=1:length(cols)
 		D[:,j] = U[:,cols[j]] * sqrt(S[cols[j]])
 	end
-	return sign(D[1,1]*D')
+	return sign(D[1,1])*D'
 end
 
 
@@ -129,8 +129,8 @@ The performance is computed by solving an algebraic Riccati equation.
 It corresponds to the MSE at the end of a measurement update state in
 the Kalman filter.
 
-Inputs: vectors of matrices, one per individual
-------
+Inputs: one matrix per individual
+
 - D: size (q,nusers*p)  (q can be arbitrary, p = individual output signal dim.)
 - Ls: size (r,m,nusers)  (if want estimator of sum_i L_i x_i)
 - As: size (m,m,nusers)
