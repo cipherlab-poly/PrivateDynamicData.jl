@@ -4,10 +4,9 @@ using Mosek
 using ControlSystems
 
 
-"""
-    (D, P_val, X_val, Ω_val, M) =
-        staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, k_priv, ρ,
-                                 m=size(As,1), p=size(Cs,1), r=size(Ls,1))
+"""    (D, P_val, X_val, Ω_val, M) =
+            staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, k_priv, ρ,
+                                    m=size(As,1), p=size(Cs,1), r=size(Ls,1))
 
 Compute an input matrix D for the two-block differentially private
 steady-state Kalman filter mechanism. D takes linear combinations of
@@ -28,7 +27,7 @@ injection. Compute it with k_priv = gaussianMechConstant(ϵ,δ) for your
 choice of ϵ, δ.
 """
 function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
-								  nusers=size(As,3), m=size(As,1),
+                                  nusers=size(As,3), m=size(As,1),
                                   p=size(Cs,1), r=size(Ls,1))
     modl = Model(solver=MosekSolver())
     #modl = Model(solver=SCSSolver())
@@ -44,12 +43,12 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
     Vinv = zeros(Np, Np)
 
     for i=1:nusers
-      L[:, (i-1)*m+1:i*m] = Ls[:,:,i]
-	  A[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = As[:,:,i]
-	  C[(i-1)*p+1:i*p, (i-1)*m+1:i*m] = Cs[:,:,i]
-	  V[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vs[:,:,i]
-	  Winv[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = Winvs[:,:,i]
-	  Vinv[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vinvs[:,:,i]
+        L[:, (i-1)*m+1:i*m] = Ls[:,:,i]
+        A[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = As[:,:,i]
+        C[(i-1)*p+1:i*p, (i-1)*m+1:i*m] = Cs[:,:,i]
+        V[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vs[:,:,i]
+        Winv[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = Winvs[:,:,i]
+        Vinv[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vinvs[:,:,i]
     end
 
     @variable(modl, X[1:r, 1:r], SDP)
@@ -64,9 +63,9 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
     C'*P*C-Ω+Winv, Winv*A, A'*Winv, Ω+A'*Winv*A) >= zeros(2*Nm,2*Nm))
 
     for i=1:nusers
-	    e = zeros(p,Np); e[:,(i-1)*p+1:i*p]=eye(p)
-	    @SDconstraint(modl, hvcat((2,2),
-	    eye(p)/(k_priv^2*ρ[i]^2)+Vinvs[:,:,i], e, e', V-V*P*V) >= zeros(Np+p,Np+p))
+        e = zeros(p,Np); e[:,(i-1)*p+1:i*p]=eye(p)
+        @SDconstraint(modl, hvcat((2,2),
+        eye(p)/(k_priv^2*ρ[i]^2)+Vinvs[:,:,i], e, e', V-V*P*V) >= zeros(Np+p,Np+p))
     end
 
     status = solve(modl)
@@ -100,9 +99,7 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
 end
 
 
-"""
-    dfactor(M; svaltol=1e-3)
-
+"""    dfactor(M; svaltol=1e-3)
 Compute D such that D'D = M for M positive semidefinite, via SVD. Tries to
 output a wide D matrix by neglecting the singular values of M smaller than
 svaltol*(max svals).
@@ -113,21 +110,19 @@ function dfactor(M; svaltol=1e-4)
     threshold = svaltol*svalmax
     cols = []
     for i=1:length(S)
-      if S[i] >= threshold
-	    push!(cols, i)
-	  end
+        if S[i] >= threshold
+            push!(cols, i)
+        end
     end
     D = zeros(size(M,1), length(cols))
     for j=1:length(cols)
-      D[:,j] = U[:,cols[j]] * sqrt(S[cols[j]])
+        D[:,j] = U[:,cols[j]] * sqrt(S[cols[j]])
     end
     return sign(D[1,1])*D'
 end
 
 
-"""
-    evaluateKFperf(D, Ls, As, Cs, Vs, Ws, ρ, k_priv)
-
+"""    evaluateKFperf(D, Ls, As, Cs, Vs, Ws, ρ, k_priv)
 Compute the steady-state MSE of the two-block differentially private
 Kalman filter, with a static matrix D to combine input signals.
 The performance is computed by solving an algebraic Riccati equation.
@@ -164,26 +159,26 @@ function evaluateKFperf(D, Ls, As, Cs, Vs, Ws, ρ, k_priv)
     V = zeros(Np, Np)
 
     for i=1:nusers
-    	L[:, (i-1)*m+1:i*m] = Ls[:,:,i]
-    	A[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = As[:,:,i]
-    	C[(i-1)*p+1:i*p, (i-1)*m+1:i*m] = Cs[:,:,i]
-    	W[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = Ws[:,:,i]
-    	V[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vs[:,:,i]
-    	#Winv[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = Winvs[:,:,i]
-    	#Vinv[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vinvs[:,:,i]
+        L[:, (i-1)*m+1:i*m] = Ls[:,:,i]
+        A[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = As[:,:,i]
+        C[(i-1)*p+1:i*p, (i-1)*m+1:i*m] = Cs[:,:,i]
+        W[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = Ws[:,:,i]
+        V[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vs[:,:,i]
+        #Winv[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = Winvs[:,:,i]
+        #Vinv[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vinvs[:,:,i]
     end
 
-	# compute sensitivity
-	Δ₂ = 0
-	for i=1:nusers
-		Δ₂ = max(Δ₂, ρ[i] * maximum(svdvals(D[:,(i-1)*p+1:i*p])))
-	end
+    # compute sensitivity
+    Δ₂ = 0
+    for i=1:nusers
+        Δ₂ = max(Δ₂, ρ[i] * maximum(svdvals(D[:,(i-1)*p+1:i*p])))
+    end
 
-	V₁ = D*V*D' + k_priv^2  * Δ₂^2 * eye(size(D,1))
-	C₁ = D*C
-	Σ = dare(A', C₁', W, V₁)  #  computes ss cov. after time update step
-	Σupdate = Σ - Σ*C₁'*inv(C₁*Σ*C₁'+V₁)*C₁*Σ  # cov. afer meas. update step
+    V₁ = D*V*D' + k_priv^2  * Δ₂^2 * eye(size(D,1))
+    C₁ = D*C
+    Σ = dare(A', C₁', W, V₁)  #  computes ss cov. after time update step
+    Σupdate = Σ - Σ*C₁'*inv(C₁*Σ*C₁'+V₁)*C₁*Σ  # cov. afer meas. update step
 
     #return (trace(L*Σupdate*L'), Δ₂, Σupdate)
-	return trace(L*Σupdate*L')
+    return trace(L*Σupdate*L')
 end
