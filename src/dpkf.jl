@@ -1,6 +1,12 @@
 using JuMP
-using Mosek
-#using SCS
+if haskey(Pkg.installed(),"Mosek")
+    using Mosek
+    const dpkf_ok = true
+else
+    dpkf_ok = false
+    println("WARNING: Mosek.jl is not installed, the functions for differentially private Kalman filtering cannot be used!")
+end
+#using SCS  # does not work with SCS currently for some reason
 using ControlSystems
 
 

@@ -15,8 +15,8 @@
       staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv)
     cost = evaluateKFperf(D, Ls, As, Cs, Vs, Ws, ρ, k_priv)
 
-    @test_approx_eq_eps sum(D) nusers 1e-6 # D should be all ones
+    @test sum(D) ≈ nusers atol=1e-6 # D should be all ones
     @test cost ≈ 1.6244783332772452
-    @test_approx_eq_eps trace(X_val) cost 1e-6
+    @test trace(X_val) ≈ cost atol=1e-6
   end
 end
