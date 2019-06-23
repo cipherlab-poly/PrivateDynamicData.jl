@@ -1,0 +1,13 @@
+name = "PrivateDynamicData"
+uuid = "b8b03a32-95db-11e9-0b2f-9bd5f43cbcad"
+authors = ["Jerome LE NY <jerome.le-ny@polymtl.ca>"]
+version = "0.1.0"
+
+[deps]
+ControlSystems = "a6e380b2-a6ca-5380-bf3e-84a91bcd477e"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+Mosek = "6405355b-0ac2-5fba-af84-adbd65488c0e"
+MosekTools = "1ec41992-ff65-5c91-ac43-2df89e9693a4"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"

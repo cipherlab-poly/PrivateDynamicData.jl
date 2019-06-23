@@ -1,5 +1,3 @@
-#__precompile__()
-
 module PrivateDynamicData
 
 export gaussianMechConstant, gaussianMechConstant2,
@@ -10,4 +8,4 @@ export gaussianMechConstant, gaussianMechConstant2,
 include("utils.jl")
 include("dpkf.jl")  # Differentially private Kalman filtering
 
-end  # module
+end # module
