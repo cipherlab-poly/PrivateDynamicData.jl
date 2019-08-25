@@ -1,27 +1,16 @@
 import Pkg
 
-if haskey(Pkg.installed(),"Mosek") && haskey(Pkg.installed(),"MosekTools")
-    using MosekTools
+if haskey(Pkg.installed(),"Mosek")
+    using Mosek
     const dpkf_ok = true
 else
     dpkf_ok = false
-    println("WARNING: Mosek.jl and/or MosekTools.jl not installed,
+    println("WARNING: Mosek.jl not installed,
         the functions for differentially private Kalman filtering cannot be used!")
 end
 
-#=
-if haskey(Pkg.installed(),"SCS")
-    using SCS  # does not work with SCS currently for some reason
-    const dpkf_ok = true
-else
-    dpkf_ok = false
-    println("WARNING: SCS.jl not installed, the functions for differentially
-    private Kalman filtering cannot be used!")
-end
-=#
-
 using JuMP
-using ControlSystems
+using ControlSystems: dare
 using LinearAlgebra
 
 
@@ -51,8 +40,7 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
                                   nusers=size(As,3), m=size(As,1),
                                   p=size(Cs,1), r=size(Ls,1))
 
-    modl = Model(with_optimizer(Mosek.Optimizer))
-    #modl = Model(with_optimizer(SCS.Optimizer))
+    modl = Model(solver=MosekSolver())
 
     Nm = nusers * m
     Np = nusers * p
@@ -77,18 +65,18 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
         @variable(modl, X >= 0)
         @objective(modl, Min, X)
     else
-        @variable(modl, X[1:r, 1:r], PSD)
+        @variable(modl, X[1:r, 1:r], SDP)
         @objective(modl, Min, tr(X))
     end
     if Nm == 1
         @variable(modl, Ω >= 0)
     else
-        @variable(modl, Ω[1:Nm, 1:Nm], PSD)
+        @variable(modl, Ω[1:Nm, 1:Nm], SDP)
     end
     if Np == 1
         @variable(modl, P >= 0)
     else
-        @variable(modl, P[1:Np, 1:Np], PSD)
+        @variable(modl, P[1:Np, 1:Np], SDP)
     end
 
     @SDconstraint(modl, hvcat((2,2), X, L, L', Ω) >= zeros(r+Nm,r+Nm))
@@ -103,18 +91,17 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
           >= zeros(Np+p,Np+p))
     end
 
-    optimize!(modl)
-    status = termination_status(modl)
+    status = JuMP.solve(modl)
 
     println("============================================")
     println("Solution status: ", status)
-    println("Objective value: ", objective_value(modl))
+    println("Objective value: ", getobjectivevalue(modl))
     println("============================================")
 
-    P_val = value.(P)
+    P_val = getvalue(P)
 
-    X_val = value.(X)
-    Ω_val = value.(Ω)
+    X_val = getvalue(X)
+    Ω_val = getvalue(Ω)
 
     ## Debug
     #Σ_val = inv(Ω_val)

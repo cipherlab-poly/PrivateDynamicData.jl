@@ -8,37 +8,23 @@ PrivateDynamicData.jl
 ## Set-up ##
 
 This package is intended to work with Julia v1.0 and later.
-To use with Julia prior to v1.0, please see the other branches of this repository.
+To use with Julia prior to v1.0, please see the branch julia0.5 of this repository, as a starting point.
+
+This is branch jump0.18 of the repository: it is intended to work with [JuMP](https://github.com/JuliaOpt/JuMP.jl) version 0.18 (branch release-0.18), i.e., prior to the change from MathProgBase to MathOptInterface. It also uses [Mosek](https://www.mosek.com/) version 8.1 to solve semidefinite programs, and the corresponding branch b0.9 of the [Mosek.jl](https://github.com/JuliaOpt/Mosek.jl) package. These correct version of these packages are checked-out automatically by the package manager, but you need to have Mosek installed and a valid license. See the instruction for the [Mosek.jl](https://github.com/JuliaOpt/Mosek.jl) package. You can also refer to the JuMP documentation on
+[installing solvers](http://www.juliaopt.org/JuMP.jl/v0.18/installation.html#getting-solvers).
+
+Note that Mosek requires a license, but free Academic licenses are available.
+If Mosek is not installed, this package can still be installed but the functions for differentially private Kalman filtering will not work. Adding support for other semidefinite solvers than Mosek or other versions of Mosek and streamlining the installation process is currently WIP in other branches of this package.
 
 To add the package, in the package manager (press ] in the REPL)
 ```julia
-pkg> add "https://github.com/cipherlab-poly/PrivateDynamicData.jl.git"
+pkg> add "https://github.com/cipherlab-poly/PrivateDynamicData.jl.git"#jump0.18
 ```
 
 To use the package functionalities
 ```julia
 using PrivateDynamicData
 ```
-
-Currently the functions for differentially private Kalman filtering in the master branch of the package require [Mosek](https://www.mosek.com/) interfaced with [JuMP](http://www.juliaopt.org/JuMP.jl/v0.19.2/), version 0.19 or later (i.e., using the [MathOptInterface](https://github.com/JuliaOpt/MathOptInterface.jl)).
-Mosek is used to solve semidefinite programs.
-As the installation instructions for the Julia-Mosek interface tend to change over time and depend on the version of Mosek that you are using, you might have to adapt the current installation process for the
-[Mosek.jl](https://github.com/JuliaOpt/Mosek.jl) and
-[MosekTools.jl](https://github.com/JuliaOpt/MosekTools.jl)
-packages to correspond to your version of Mosek.
-This package currently uses Mosek 0.9 and hence the master branch of these interfaces
-```julia
-pkg> add Mosek#master
-pkg> add MosekTools#master
-```
-Please refer to the JuMP documentation on
-[installing solvers](http://www.juliaopt.org/JuMP.jl/v0.19.2/installation/) and
-also [MosekTools](https://github.com/JuliaOpt/MosekTools.jl).
-
-Note that Mosek requires a license, but free Academic licenses are available.
-If Mosek is not installed, this package can still be installed but the corresponding
-functions will not work. Adding support for other semidefinite solvers than Mosek and
-streamlining the installation process is currently WIP.
 
 ## Run Tests ##
 
