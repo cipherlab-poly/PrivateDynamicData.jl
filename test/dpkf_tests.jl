@@ -17,6 +17,6 @@
 
     @test sum(D) ≈ nusers atol=1e-6 # D should be all ones
     @test cost ≈ 1.6244783332772452
-    @test trace(X_val) ≈ cost atol=1e-6
+    @test tr(X_val) ≈ cost atol=1e-6
   end
 end

@@ -1,15 +1,28 @@
 import Pkg
-if haskey(Pkg.installed(),"Mosek")
-    using Mosek
+
+if haskey(Pkg.installed(),"Mosek") && haskey(Pkg.installed(),"MosekTools")
+    using MosekTools
     const dpkf_ok = true
 else
     dpkf_ok = false
-    println("WARNING: Mosek.jl is not installed, the functions for differentially private Kalman filtering cannot be used!")
+    println("WARNING: Mosek.jl and/or MosekTools.jl not installed,
+        the functions for differentially private Kalman filtering cannot be used!")
 end
-#using SCS  # does not work with SCS currently for some reason
+
+#=
+if haskey(Pkg.installed(),"SCS")
+    using SCS  # does not work with SCS currently for some reason
+    const dpkf_ok = true
+else
+    dpkf_ok = false
+    println("WARNING: SCS.jl not installed, the functions for differentially
+    private Kalman filtering cannot be used!")
+end
+=#
 
 using JuMP
 using ControlSystems
+using LinearAlgebra
 
 
 """    (D, P_val, X_val, Ω_val, M) =
@@ -37,8 +50,9 @@ choice of ϵ, δ.
 function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
                                   nusers=size(As,3), m=size(As,1),
                                   p=size(Cs,1), r=size(Ls,1))
-    modl = Model(solver=MosekSolver())
-    #modl = Model(solver=SCSSolver())
+
+    modl = Model(with_optimizer(Mosek.Optimizer))
+    #modl = Model(with_optimizer(SCS.Optimizer))
 
     Nm = nusers * m
     Np = nusers * p
@@ -59,34 +73,48 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
         Vinv[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vinvs[:,:,i]
     end
 
-    @variable(modl, X[1:r, 1:r], SDP)
-    @variable(modl, Ω[1:Nm, 1:Nm], SDP)
-    @variable(modl, P[1:Np, 1:Np], SDP)
-
-    @objective(modl, Min, trace(X))
+    if r == 1
+        @variable(modl, X >= 0)
+        @objective(modl, Min, X)
+    else
+        @variable(modl, X[1:r, 1:r], PSD)
+        @objective(modl, Min, tr(X))
+    end
+    if Nm == 1
+        @variable(modl, Ω >= 0)
+    else
+        @variable(modl, Ω[1:Nm, 1:Nm], PSD)
+    end
+    if Np == 1
+        @variable(modl, P >= 0)
+    else
+        @variable(modl, P[1:Np, 1:Np], PSD)
+    end
 
     @SDconstraint(modl, hvcat((2,2), X, L, L', Ω) >= zeros(r+Nm,r+Nm))
 
     @SDconstraint(modl, hvcat((2,2),
-    C'*P*C-Ω+Winv, Winv*A, A'*Winv, Ω+A'*Winv*A) >= zeros(2*Nm,2*Nm))
+        C'*P*C-Ω+Winv, Winv*A, A'*Winv, Ω+A'*Winv*A) >= zeros(2*Nm,2*Nm))
 
     for i=1:nusers
-        e = zeros(p,Np); e[:,(i-1)*p+1:i*p]=eye(p)
-        @SDconstraint(modl, hvcat((2,2),
-        eye(p)/(k_priv^2*ρ[i]^2)+Vinvs[:,:,i], e, e', V-V*P*V) >= zeros(Np+p,Np+p))
+        e = zeros(p,Np); e[:,(i-1)*p+1:i*p]=Matrix{Float64}(I,p,p)
+        @SDconstraint(modl,
+          hvcat((2,2), Matrix{Float64}(I,p,p)/(k_priv^2*ρ[i]^2)+Vinvs[:,:,i], e, e', V-V*P*V)
+          >= zeros(Np+p,Np+p))
     end
 
-    status = solve(modl)
+    optimize!(modl)
+    status = termination_status(modl)
 
     println("============================================")
     println("Solution status: ", status)
-    println("Objective value: ", getobjectivevalue(modl))
+    println("Objective value: ", objective_value(modl))
     println("============================================")
 
-    P_val = getvalue(P)
+    P_val = value.(P)
 
-    X_val = getvalue(X)
-    Ω_val = getvalue(Ω)
+    X_val = value.(X)
+    Ω_val = value.(Ω)
 
     ## Debug
     #Σ_val = inv(Ω_val)
@@ -182,11 +210,11 @@ function evaluateKFperf(D, Ls, As, Cs, Vs, Ws, ρ, k_priv)
         Δ₂ = max(Δ₂, ρ[i] * maximum(svdvals(D[:,(i-1)*p+1:i*p])))
     end
 
-    V₁ = D*V*D' + k_priv^2  * Δ₂^2 * eye(size(D,1))
+    V₁ = D*V*D' + k_priv^2  * Δ₂^2 * Matrix{Float64}(I,size(D,1),size(D,1))
     C₁ = D*C
     Σ = dare(A', C₁', W, V₁)  #  computes ss cov. after time update step
     Σupdate = Σ - Σ*C₁'*inv(C₁*Σ*C₁'+V₁)*C₁*Σ  # cov. afer meas. update step
 
     #return (trace(L*Σupdate*L'), Δ₂, Σupdate)
-    return trace(L*Σupdate*L')
+    return tr(L*Σupdate*L')
 end

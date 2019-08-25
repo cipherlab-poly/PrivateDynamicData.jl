@@ -26,12 +26,12 @@ x_i of the vector is in [0,1], and the adjacency relation looks at
 arbitrary variations in one entry x_i, within this interval.
 """
 function mean_dp(x::Vector, ϵ::Real, δ::Real=0.0)
-    if δ == 0
+    if δ == 0.0
         d = Distributions.Laplace(0, 1/(ϵ*length(x)))
     else
         d = Distributions.Normal(0, gaussianMechConstant(ϵ,δ)/length(x))
     end
-    return Distributions.mean(x) + Distributions.rand(d, 1)
+    return Distributions.mean(x) + Distributions.rand(d)
 end
 
 """    laplaceMech(x,f,l1sens::Real,ϵ::Real)
@@ -43,7 +43,7 @@ f must take values in R^k, for some k, i.e., return an array of k real values.
 function laplaceMech(x, f, l1sens::Real, ϵ::Real)
     t = f(x)
     d = Distributions.Laplace(0, l1sens/ϵ)
-    return (t + Distributions.rand(d, length(t)))
+    return (t .+ Distributions.rand(d, length(t)))
 end
 
 """    gaussianMech(x,f,l2sens::Real,ϵ::Real,δ::Real)
@@ -56,5 +56,5 @@ of k real values.
 function gaussianMech(x, f, l2sens::Real, ϵ::Real, δ::Real)
     t = f(x)
     d = Distributions.Normal(0, gaussianMechConstant(ϵ, δ) * l2sens)
-    return (t + rDistributions.and(d, length(t)))
+    return (t .+ Distributions.rand(d, length(t)))
 end
