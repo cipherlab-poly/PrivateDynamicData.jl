@@ -32,6 +32,11 @@ using PrivateDynamicData
 pkg> test PrivateDynamicData
 ```
 
+If things don't work with Mosek, try installing the correct branch of the Mosek.jl package yourself, as this is likely to show where the issue is with the Mosek installation (recall that this should be Mosek version 8.1)
+```julia
+pkg> add Mosek#b0.9
+```
+
 ## Functions ##
 
 Use the help to access the documentation of the following functions.
