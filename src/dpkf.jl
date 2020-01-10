@@ -1,12 +1,12 @@
 import Pkg
 
-if haskey(Pkg.installed(),"Mosek") && haskey(Pkg.installed(),"MosekTools")
+if haskey(Pkg.installed(),"MosekTools")
     using MosekTools
     const dpkf_ok = true
 else
     dpkf_ok = false
-    println("WARNING: Mosek.jl and/or MosekTools.jl not installed,
-        the functions for differentially private Kalman filtering cannot be used!")
+    println("WARNING: MosekTools.jl not installed, the functions
+    for differentially private Kalman filtering cannot be used!")
 end
 
 #=
