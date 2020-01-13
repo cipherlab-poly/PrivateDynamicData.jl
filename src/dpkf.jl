@@ -33,6 +33,11 @@ Compute an input matrix D for the two-block differentially private
 steady-state Kalman filter mechanism. D takes linear combinations of
 individual signals before privacy-preserving Gaussian noise injection.
 
+Note that we do not guarantee observability of the pair (A,D*C). If
+observability is lost, call the dfactor function with the returned
+matrix M and a truncation threshold lower than 1e-6 in order to compute
+a new matrix D with more rows.
+
 Inputs: one matrix per individual
 
 - Ls: size (r,m,nusers)  (if want estimator of sum_i L_i x_i)
@@ -126,7 +131,7 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv,
     # Matrix to factorize
     M = k_priv^2 * (inv(V-V*P_val*V)-Vinv)
     # Compute D matrix
-    D = dfactor(M; svaltol=1e-3)
+    D = dfactor(M; svaltol=1e-6)
 
     #return chol(Hermitian(M₁))
     #return (M, P_val, Ω_val, Σ_val, X_val)
@@ -212,6 +217,7 @@ function evaluateKFperf(D, Ls, As, Cs, Vs, Ws, ρ, k_priv)
 
     V₁ = D*V*D' + k_priv^2  * Δ₂^2 * Matrix{Float64}(I,size(D,1),size(D,1))
     C₁ = D*C
+    V₁ = 0.5*(V₁+V₁')  # might have lost perfect symmetry due to numerical issues
     Σ = dare(A', C₁', W, V₁)  #  computes ss cov. after time update step
     Σupdate = Σ - Σ*C₁'*inv(C₁*Σ*C₁'+V₁)*C₁*Σ  # cov. afer meas. update step
 

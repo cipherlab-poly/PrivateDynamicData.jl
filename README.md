@@ -48,6 +48,10 @@ Differentially Private Kalman Filtering:
 * dfactor
 * evaluateKFperf
 
+## Examples ##
+
+A few examples showing how to use the functions in this package are available in the form of a Jupyter notebook [here](https://github.com/jleny/DifferentialPrivacy-course).
+
 ## Contributors ##
 
 * Jerome Le Ny
