@@ -12,11 +12,19 @@
     	Winvs[:,:,i] = inv(Ws[:,:,i])
     end
     (D, P_val, X_val, Ω_val, M) =
-      staticInputBlock_DPKF_ss(Ls, As, Cs, Vs, Vinvs, Winvs, ρ, k_priv)
-    cost = evaluateKFperf(D, Ls, As, Cs, Vs, Ws, ρ, k_priv)
+      staticInputBlock_DPKF_ss(Ls, As, Cs, Winvs, Vs, Vinvs, ρ, k_priv)
+    cost = evaluateKFperf(D, Ls, As, Cs, Ws, Vs, ρ, k_priv)[1]
 
     @test sum(D) ≈ nusers atol=1e-6 # D should be all ones
     @test cost ≈ 1.6244783332772452
     @test tr(X_val) ≈ cost atol=1e-6
+
+    # LQG test - need to finish, writing evaluation function for LQG
+    Bs = ones(1,1,nusers)
+    Q = 1.0 * Matrix(I,nusers,nusers); R = 0.5
+    (Dlqg, perflqg, Plqg, X_val_lqg, Mlqg) =
+      staticInputBlock_DPLQG_ss(Q, R, As, Bs, Cs, Ws, Winvs, Vs, Vinvs, ρ, k_priv)
+    costlqg = evaluateLQGperf(Dlqg, Q, R, As, Bs, Cs, Ws, Vs, ρ, k_priv)[1]
+    @test perflqg ≈ costlqg atol=1e-6
   end
 end

@@ -2,7 +2,8 @@ module PrivateDynamicData
 
 export gaussianMechConstant, gaussianMechConstant2,
        mean_dp, laplaceMech, gaussianMech,
-       staticInputBlock_DPKF_ss, dfactor, evaluateKFperf
+       staticInputBlock_DPKF_ss, dfactor, evaluateKFperf,
+       staticInputBlock_DPLQG_ss, evaluateLQGperf
 
 include("utils.jl")
 include("dpkf.jl")  # Differentially private Kalman filtering
