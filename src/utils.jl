@@ -58,3 +58,26 @@ function gaussianMech(x, f, l2sens::Real, ϵ::Real, δ::Real)
     d = Distributions.Normal(0, gaussianMechConstant(ϵ, δ) * l2sens)
     return (t .+ Distributions.rand(d, length(t)))
 end
+
+"""    truncatedLaplaceMech(x,f,l1sens::Real,ϵ::Real,δ::Real)
+Computes a randomized version to f(x) according to the
+truncated Laplace mechanism, for (ϵ,δ)-differential privacy.
+This scheme adds bounded noise.
+l1sens is the l1-sensitivity of f, which must be computed and provided by the
+user. f must take values in R^k, for some k, i.e., return an array of k real
+values.
+
+Returns: (r, a) where r is a noisy version of f(x), and a defines the
+support of the noise distribution (in the interval [f(x)-a, f(x)+a])
+"""
+function truncatedLaplaceMech(x, f, l1sens::Real, ϵ::Real, δ::Real)
+    t = f(x)
+    k = length(t)
+    λ = l1sens/ϵ
+    a = λ * log( 1 + exp(ϵ) * (k*(1-exp(-ϵ/k)))/(2*δ) )
+    # alternative, more conservative but indpt of k
+    # a = λ * log(1 + ϵ * exp(ϵ) / (2*δ))
+    d1 = Distributions.Laplace(0, λ)
+    d = Distributions.truncated(d1, -a, a)
+    return (t .+ Distributions.rand(d, length(t)), a)
+end

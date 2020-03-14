@@ -1,7 +1,7 @@
 module PrivateDynamicData
 
 export gaussianMechConstant, gaussianMechConstant2,
-       mean_dp, laplaceMech, gaussianMech,
+       mean_dp, laplaceMech, gaussianMech, truncatedLaplaceMech,
        staticInputBlock_DPKF_ss, dfactor, evaluateKFperf,
        staticInputBlock_DPLQG_ss, evaluateLQGperf
 
