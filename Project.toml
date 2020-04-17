@@ -11,3 +11,7 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MosekTools = "1ec41992-ff65-5c91-ac43-2df89e9693a4"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
+[compat]
+MosekTools = "0.9.3"
+
