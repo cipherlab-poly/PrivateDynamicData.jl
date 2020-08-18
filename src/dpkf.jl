@@ -57,7 +57,8 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Winvs, Vs, Vinvs, ρ, k_priv,
                                   nusers=size(As,3), m=size(As,1),
                                   p=size(Cs,1), r=size(Ls,1))
 
-    modl = Model(with_optimizer(Mosek.Optimizer))
+    modl = Model(Mosek.Optimizer)
+    #modl = Model(with_optimizer(Mosek.Optimizer))
     #modl = Model(with_optimizer(SCS.Optimizer))
 
     Nm = nusers * m
