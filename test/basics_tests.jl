@@ -2,10 +2,10 @@
   @testset "Utils" begin
     ϵ = log(3); δ = 0.05
 
-    @test gaussianMechConstant(ϵ, δ) ≈ 1.7563398731147595 atol=1e-16
+    @test gaussianMechConstant(ϵ, δ) ≈ 1.7563398731147597 atol=1e-10
     tmp = gaussianMechConstant2(ϵ, δ)
-    @test tmp[1] ≈ 1.7563398731147595 atol=1e-16
-    @test tmp[2] ≈ 2.3095249420840473 atol=1e-16
+    @test tmp[1] ≈ 1.7563398731147597 atol=1e-10
+    @test tmp[2] ≈ 2.3095249420840473 atol=1e-10
   end
 
   @testset "Basic mechanisms" begin
