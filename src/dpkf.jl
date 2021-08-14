@@ -58,7 +58,10 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Winvs, Vs, Vinvs, ρ, k_priv,
                                   p=size(Cs,1), r=size(Ls,1))
 
     #modl = Model(Mosek.Optimizer)
-    modl = Model(COSMO.Optimizer, "max_iter" => 20000)
+    modl = Model(COSMO.Optimizer)
+    set_optimizer_attribute(modl, "max_iter", 20000)
+
+    # Previous API
     #modl = Model(with_optimizer(Mosek.Optimizer))
     #modl = Model(with_optimizer(SCS.Optimizer))
 
