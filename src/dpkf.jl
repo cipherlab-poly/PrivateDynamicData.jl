@@ -1,5 +1,6 @@
 import Pkg
 
+#=
 if haskey(Pkg.installed(),"MosekTools")
     using MosekTools
     const dpkf_ok = true
@@ -8,17 +9,16 @@ else
     println("WARNING: MosekTools.jl not installed, the functions
     for differentially private Kalman filtering cannot be used!")
 end
+=#
 
-#=
-if haskey(Pkg.installed(),"SCS")
-    using SCS  # does not work with SCS currently for some reason
+if haskey(Pkg.installed(),"COSMO")
+    using COSMO
     const dpkf_ok = true
 else
     dpkf_ok = false
-    println("WARNING: SCS.jl not installed, the functions for differentially
-    private Kalman filtering cannot be used!")
+    println("WARNING: COSMO.jl not installed, the functions
+    for differentially private Kalman filtering cannot be used!")
 end
-=#
 
 using JuMP
 using ControlSystems
@@ -57,7 +57,8 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Winvs, Vs, Vinvs, ρ, k_priv,
                                   nusers=size(As,3), m=size(As,1),
                                   p=size(Cs,1), r=size(Ls,1))
 
-    modl = Model(Mosek.Optimizer)
+    #modl = Model(Mosek.Optimizer)
+    modl = Model(COSMO.Optimizer, "max_iter" => 20000)
     #modl = Model(with_optimizer(Mosek.Optimizer))
     #modl = Model(with_optimizer(SCS.Optimizer))
 
