@@ -3,6 +3,7 @@ import Pkg
 if haskey(Pkg.installed(),"MosekTools")
     using MosekTools
     const dpkf_ok = true
+    println("MosekTools.jl found. The functions for differentially private Kalman filtering can be used.")
 else
     dpkf_ok = false
     println("WARNING: MosekTools.jl not installed, the functions
