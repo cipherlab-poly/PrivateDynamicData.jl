@@ -5,6 +5,18 @@ PrivateDynamicData.jl
 
 ---
 
+## Update 2022-11
+
+Packages tested for Mosek v10.0 with the following configuration
+  [a6e380b2] ControlSystems v1.5.1
+  [31c24e10] Distributions v0.25.77
+  [4076af6c] JuMP v1.4.0
+  [6405355b] Mosek v10.0.2
+  [1ec41992] MosekTools v0.13.1
+  [276daf66] SpecialFunctions v2.1.7
+  [37e2e46d] LinearAlgebra
+  [44cfe95a] Pkg v1.8.0
+
 ## Set-up ##
 
 This package is intended to work with Julia v1.0 and later.

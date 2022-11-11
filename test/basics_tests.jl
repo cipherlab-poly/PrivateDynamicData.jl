@@ -13,11 +13,11 @@
 
     Random.seed!(12345)  # reseed the RNG
     D = Random.rand(100)
-    @test gaussianMech(D, Distributions.mean, 2.0/100, ϵ, δ)[1] == 0.4340762596257932
-    @test laplaceMech(D, Distributions.mean, 2.0/100, ϵ)[1] == 0.47917820856138704
-    @test mean_dp(D, ϵ, δ) == 0.4346391733818339
-    @test mean_dp(D, ϵ, 0.0) == 0.4721348509515663
-    @test mean_dp(D, ϵ) == 0.4769804801837357
+    @test gaussianMech(D, Distributions.mean, 2.0/100, ϵ, δ)[1] ≈ 0.4340762596257934 atol=1e-10
+    @test laplaceMech(D, Distributions.mean, 2.0/100, ϵ)[1] ≈ 0.4791782085613872 atol=1e-10
+    @test mean_dp(D, ϵ, δ) ≈ 0.434639173381834 atol=1e-10
+    @test mean_dp(D, ϵ, 0.0) ≈ 0.4721348509515665 atol=1e-10
+    @test mean_dp(D, ϵ) ≈ 0.476980480183735584 atol=1e-10
 
     Random.seed!(12345)  # reseed the RNG
     f(x) = [x[1]^2*x[2], sqrt(x[1]), x[2]^3]

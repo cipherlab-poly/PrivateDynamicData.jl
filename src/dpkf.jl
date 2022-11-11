@@ -106,16 +106,22 @@ function staticInputBlock_DPKF_ss(Ls, As, Cs, Winvs, Vs, Vinvs, ρ, k_priv,
         @variable(modl, P[1:Np, 1:Np], PSD)
     end
 
-    @SDconstraint(modl, hvcat((2,2), X, L, L', Ω) >= zeros(r+Nm,r+Nm))
+    #@SDconstraint(modl, hvcat((2,2), X, L, L', Ω) >= zeros(r+Nm,r+Nm))
+    @constraint(modl, hvcat((2,2), X, L, L', Ω) >= zeros(r+Nm,r+Nm), PSDCone())
 
-    @SDconstraint(modl, hvcat((2,2),
-        C'*P*C-Ω+Winv, Winv*A, A'*Winv, Ω+A'*Winv*A) >= zeros(2*Nm,2*Nm))
+    #@SDconstraint(modl, hvcat((2,2),
+    #    C'*P*C-Ω+Winv, Winv*A, A'*Winv, Ω+A'*Winv*A) >= zeros(2*Nm,2*Nm))
+    @constraint(modl, hvcat((2,2),
+    C'*P*C-Ω+Winv, Winv*A, A'*Winv, Ω+A'*Winv*A) >= zeros(2*Nm,2*Nm), PSDCone())
 
     for i=1:nusers
         e = zeros(p,Np); e[:,(i-1)*p+1:i*p]=Matrix{Float64}(I,p,p)
-        @SDconstraint(modl,
+        #@SDconstraint(modl,
+        #  hvcat((2,2), Matrix{Float64}(I,p,p)/(k_priv^2*ρ[i]^2)+Vinvs[:,:,i], e, e', V-V*P*V)
+        #  >= zeros(Np+p,Np+p))
+        @constraint(modl,
           hvcat((2,2), Matrix{Float64}(I,p,p)/(k_priv^2*ρ[i]^2)+Vinvs[:,:,i], e, e', V-V*P*V)
-          >= zeros(Np+p,Np+p))
+          >= zeros(Np+p,Np+p), PSDCone())
     end
 
     optimize!(modl)
@@ -192,7 +198,8 @@ function staticInputBlock_DPLQG_ss(Q, R, As, Bs, Cs, Ws, Winvs, Vs, Vinvs,
         W[(i-1)*m+1:i*m, (i-1)*m+1:i*m] = Ws[:,:,i]
     end
 
-    P = dare(A, B, Q, R)  #  computes ss LQR cost
+    #P = dare(A, B, Q, R)  #  computes ss LQR cost
+    P = are(Discrete, A, B, Q, R)  #  computes ss LQR cost
     N = A'*P*A+Q-P
     L = dfactor(N, svaltol=1e-5)  # factorize L' L = P
     r = size(L,1)
@@ -288,7 +295,8 @@ function evaluateKFperf(D, Ls, As, Cs, Ws, Vs, ρ, k_priv)
     V₁ = D*V*D' + k_priv^2  * Δ₂^2 * Matrix{Float64}(I,size(D,1),size(D,1))
     C₁ = D*C
     V₁ = 0.5*(V₁+V₁')  # might have lost perfect symmetry due to numerical issues
-    Σ = dare(A', C₁', W, V₁)  #  computes ss cov. after time update step
+    #Σ = dare(A', C₁', W, V₁)  #  computes ss cov. after time update step
+    Σ = are(Discrete, A', C₁', W, V₁)  #  computes ss cov. after time update step
     Σupdate = Σ - Σ*C₁'*inv(C₁*Σ*C₁'+V₁)*C₁*Σ  # cov. afer meas. update step
 
     #return (trace(L*Σupdate*L'), Δ₂, Σupdate)
@@ -348,7 +356,8 @@ function evaluateLQGperf(D, Q, R, As, Bs, Cs, Ws, Vs, ρ, k_priv)
         V[(i-1)*p+1:i*p, (i-1)*p+1:i*p] = Vs[:,:,i]
     end
 
-    P = dare(A, B, Q, R)  #  computes ss LQR cost matrix
+    #P = dare(A, B, Q, R)  #  computes ss LQR cost matrix
+    P = are(Discrete, A, B, Q, R)  #  computes ss LQR cost matrix
 
     # compute sensitivity
     Δ₂ = 0
@@ -359,7 +368,8 @@ function evaluateLQGperf(D, Q, R, As, Bs, Cs, Ws, Vs, ρ, k_priv)
     V₁ = D*V*D' + k_priv^2  * Δ₂^2 * Matrix{Float64}(I,size(D,1),size(D,1))
     C₁ = D*C
     V₁ = 0.5*(V₁+V₁')  # might have lost perfect symmetry due to numerical issues
-    Σ = dare(A', C₁', W, V₁)  #  computes ss cov. after time update step
+    #Σ = dare(A', C₁', W, V₁)  #  computes ss cov. after time update step
+    Σ = are(Discrete, A', C₁', W, V₁)  #  computes ss cov. after time update step
     Σupdate = Σ - Σ*C₁'*inv(C₁*Σ*C₁'+V₁)*C₁*Σ  # cov. afer meas. update step
 
     N = Q+A'*P*A-P
