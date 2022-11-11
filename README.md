@@ -5,6 +5,8 @@ PrivateDynamicData.jl
 
 ---
 
+This branch is an archive for a set-up with Mosek v9.
+
 ## Set-up ##
 
 This package is intended to work with Julia v1.0 and later.
